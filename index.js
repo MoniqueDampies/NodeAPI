@@ -82,27 +82,44 @@ router.get("/productss", (req, res) => {
 
 // LOGIN
 
-app.post("/login", bodyParser.json(), (req, res) => {
-    // const user = bd.email;
-    // const password = bd.userpassword;
-    const strQry = `
-    SELECT email, password
-    FROM users WHERE email = ?;
-    `;
-    db.query(strQry, req.body.email, (err, results) => {
-        if (err) throw err;
-        compare(req.body.password, results[0].password, (err, auth) => {
-            if (err) throw err;
-                if (auth) {
-                    const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
-                    res.json({
-                        status: 200,
-                        results: key,
-                        });
-                    res.redirect("/productss");
-            } else res.send("failed");
-        });
-    });
+// Login
+app.post('/login', bodyParser.json(),
+    (req, res)=> {
+    try{
+        // Get email and password
+        const { email, password } = req.body;
+        const strQry =
+        `
+        SELECT email, password
+        FROM users
+        WHERE email = '${email}';
+        `;
+        db.query(strQry, async (err, results)=> {
+            if(err) throw err;
+            // const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
+            // res.json({
+            //     status: 200,
+            //     results: key,
+            // });
+            // localStorage.setItem('key', JSON.stringify(key));
+            // key = localStorage.getItem('key');
+            switch(true){
+                case (await compare(password,results[0].password)):
+                res.redirect('/productss')
+                break
+                default:
+                console.log("Bye");
+            }
+            // res.json({
+            //     status: 200,
+            //     results: (await compare(userpassword,
+            //         results[0].userpassword)) ? results :
+            //         'You provided a wrong email or password'
+            // })
+        })
+    }catch(e) {
+        console.log(`From login: ${e.message}`);
+    }
 });
 
 // USER REGISTRATION
