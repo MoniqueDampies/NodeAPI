@@ -32,10 +32,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// app.use(cors({
-//     origin: ['http://127.0.0.1:8080', 'http://localhost:8080'],
-//     credentials: true
-//  }));
+app.use(cors({
+    origin: ['http://127.0.0.1:8080', 'http://localhost:8080'],
+    credentials: true
+ }));
 
 
 // add cors to the app variable
