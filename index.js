@@ -31,6 +31,13 @@ app.use((req, res, next) => {
     );
     next();
 });
+
+// app.use(cors({
+//     origin: ['http://127.0.0.1:8080', 'http://localhost:8080'],
+//     credentials: true
+//  }));
+
+
 // add cors to the app variable
 app.use(
     router,
@@ -41,6 +48,7 @@ app.use(
     })
 );
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HOME PAGE ROUTER
 router.get("/", (req, res) => {
@@ -84,13 +92,14 @@ app.post("/login", bodyParser.json(), (req, res) => {
     db.query(strQry, req.body.email, (err, results) => {
         if (err) throw err;
         compare(req.body.password, results[0].password, (err, auth) => {
-            if (auth) {
-                const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
-                res.json({
-                    status: 200,
-                    results: key,
-                });
-                res.redirect("/productss");
+            if (err) throw err;
+                if (auth) {
+                    const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
+                    res.json({
+                        status: 200,
+                        results: key,
+                        });
+                    res.redirect("/productss");
             } else res.send("failed");
         });
     });
@@ -189,7 +198,7 @@ router.delete("/users/:id", (req, res) => {
     WHERE user_id = ?;
     ALTER TABLE users AUTO_INCREMENT = 1;
     `;
-    db.query(strQry, [req.params.id], (err, data, fields) => {
+    db.query(strQry, [req.params.id], (err, data) => {
         if (err) throw err;
         res.send(`${data.affectedRows} USER/S DELETED`);
     });
@@ -259,8 +268,9 @@ router.delete("/products/:id", (req, res) => {
     const strQry = `
     DELETE FROM products 
     WHERE product_id = ?;
+    ALTER TABLE products AUTO_INCREMENT = 1;
     `;
-    db.query(strQry, [req.params.id], (err, data, fields) => {
+    db.query(strQry, [req.params.id], (err, data) => {
         if (err) throw err;
         res.send(`${data.affectedRows} PRODUCT/S WAS DELETED`);
     });
@@ -271,11 +281,13 @@ router.delete("/products/:id", (req, res) => {
 router.put("/products/:id", bodyParser.json(), (req, res) => {
     const bd = req.body;
     // Query
-    const strQry = `UPDATE products SET title = ?, category = ?, description=?, img = ?, price = ? WHERE product_id = ?
-    `;
+    const strQry = `
+    UPDATE products 
+    SET title = ?, category = ?, description = ?, img = ?, price = ? 
+    WHERE product_id = ?`;
     db.query(
         strQry,
-        [bd.title, bd.category, bd.description, bd.img, bd.price, bd.created_by],
+        [bd.title, bd.category, bd.description, bd.img, bd.price, bd.created_by, req.params.id],
         (err, results) => {
             if (err) throw err;
             res.send(`${results.affectedRows} PRODUCT/S UPDATED`);
@@ -289,3 +301,5 @@ module.exports = {
         Proxy: "*",
     },
 };
+
+
