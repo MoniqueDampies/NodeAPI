@@ -110,12 +110,6 @@ app.post('/login', bodyParser.json(),
                 default:
                 console.log("Bye");
             }
-            // res.json({
-            //     status: 200,
-            //     results: (await compare(userpassword,
-            //         results[0].userpassword)) ? results :
-            //         'You provided a wrong email or password'
-            // })
         })
     }catch(e) {
         console.log(`From login: ${e.message}`);
@@ -134,7 +128,7 @@ app.post("/register", bodyParser.json(), (req, res) => {
         if (err) throw err;
         // VALIDATION
         if (results.length > 0) {
-            res.send("The provided email exists. Please enter another one");
+            res.send("The provided email/phone number exists. Please enter another one");
         } else {
             const bd = req.body;
             console.log(bd);
@@ -280,7 +274,7 @@ router.post("/products", bodyParser.json(), (req, res) => {
 
 // DELETE A PRODUCT WITH A SPECIFIC ID
 
-router.delete("/products/:id", (req, res) => {
+app.delete("/products/:id", (req, res) => {
     // QUERY
     const strQry = `
     DELETE FROM products 
@@ -296,7 +290,7 @@ router.delete("/products/:id", (req, res) => {
 // UPDATE A PRODUCT
 
 router.put("/products/:id", bodyParser.json(), (req, res) => {
-    const bd = req.body;
+    // const bd = req.body;
     // Query
     const strQry = `
     UPDATE products 
@@ -304,7 +298,7 @@ router.put("/products/:id", bodyParser.json(), (req, res) => {
     WHERE product_id = ?`;
     db.query(
         strQry,
-        [bd.title, bd.category, bd.description, bd.img, bd.price, bd.created_by, req.params.id],
+        [req.body.title, req.body.category, req.body.description, req.body.img, req.body.price, req.body.created_by, req.params.id],
         (err, results) => {
             if (err) throw err;
             res.send(`${results.affectedRows} PRODUCT/S UPDATED`);
