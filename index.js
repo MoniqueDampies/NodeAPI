@@ -89,15 +89,16 @@ app.post('/login', bodyParser.json(),
         FROM users
         WHERE email = '${email}';
         `;
+        if(err) throw err;
         db.query(strQry, async (err, results)=> {
             if(err) throw err;
-            // const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
-            // res.json({
-            //     status: 200,
-            //     results: key,
-            // });
-            // localStorage.setItem('key', JSON.stringify(key));
-            // key = localStorage.getItem('key');
+            const key = jwt.sign(JSON.stringify(results[0]), process.env.secret);
+            res.json({
+                status: 200,
+                results: key,
+            });
+            localStorage.setItem('key', JSON.stringify(key));
+            key = localStorage.getItem('key');
             switch(true){
                 case (await compare(password,results[0].password)):
                 res.redirect('/productss')
@@ -206,7 +207,7 @@ router.delete("/users/:id", (req, res) => {
     `;
     db.query(strQry, [req.params.id], (err, data) => {
         if (err) throw err;
-        res.send(`${data.affectedRows} USER/S DELETED`);
+        res.send(`USER HAS BEEN DELETED`);
     });
 });
 
